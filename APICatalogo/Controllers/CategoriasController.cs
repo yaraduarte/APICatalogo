@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APICatalogo.Context;
 using APICatalogo.Domain;
@@ -22,7 +17,16 @@ namespace APICatalogo.Controllers
         // GET: Categorias
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            try
+            {
+                return View(await _context.Categorias.AsNoTracking().Take(10).ToListAsync());
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Ocorreu um problema ao buscar as categorias");
+                throw;
+            }
         }
 
         // GET: Categorias/Details/5
@@ -33,7 +37,7 @@ namespace APICatalogo.Controllers
                 return NotFound();
             }
 
-            var categoria = await _context.Categorias
+            var categoria = await _context.Categorias.AsNoTracking()
                 .FirstOrDefaultAsync(m => m.CategoriaId == id);
             if (categoria == null)
             {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APICatalogo.Context;
 using APICatalogo.Domain;
@@ -25,7 +20,16 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
         {
-            return await _context.Produtos.ToListAsync();
+            try
+            {
+            return await _context.Produtos.AsNoTracking().Take(10).ToListAsync();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Ocorreu um problema ao buscar os produtos");
+                throw;
+            }
         }
 
         // GET: api/Produtos/5
